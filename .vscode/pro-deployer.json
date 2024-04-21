@@ -1,0 +1,30 @@
+{
+	"enableStatusBarItem": true,
+	"enableQuickPick": true,
+	"uploadOnSave": true,
+	"autoDelete": true,
+	"checkGitignore": false,
+	"activeTargets": [
+		"My SFTP"
+	],
+	"concurrency": 5,
+	"ignore": [
+		".git/**/*",
+		".vscode/**/*"
+	],
+	"include": [],
+	"targets": [
+		{
+			"name": "My SFTP",
+			"type": "sftp",
+			"host": "10.20.0.57",
+			"port": 22,
+			"user": "raspberrypi",
+			"password": "raspberrypi",
+			"dir": "raspberry/home/MoonlightRobota/",
+			"baseDir": "/",
+			"privateKey": null,
+			"passphrase": null
+		}
+	]
+}
