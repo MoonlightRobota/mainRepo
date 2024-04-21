@@ -1,79 +1,65 @@
 from pyPS4Controller.controller import Controller
-import serial
 import gpt
-import lidar
+import threading
+import time
+import serial
 
-# ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
-
-depthCam = lidar.depthCam()
-
-def transf(raw):
-    temp = (raw+32767)/65534
-    return round(temp*2 -1, 2)
-    # Filter values that are too weak for the motors to move
-    #if abs(temp) < 0.25:
-    #    return 0
-    # Return a value between 0.3 and 1.0
-    #else:
-    #    return round(temp, 1)
-
+# Define global variables
+FRAME_COUNT = 60
 throttle = 0
 turn = 0
-max_speed = 1.0
-min_speed = -1.0
 
+def transf(raw):
+    temp = (raw + 32767) / 65534
+    return round(temp * 2 - 1, 2)
+
+# Define the printThrust function
 def printThrust():
-    #print("Throttle: ", throttle, " - Turn: ", turn)
-    rwheel = throttle+turn
-    lwheel = throttle-turn
-    #gpt normalization
-    # if abs(lwheel) > max_speed or abs(rwheel) > max_speed:
-    #     # Find the maximum speed
-    #     max_val = max(abs(lwheel), abs(rwheel))
-    #     lwheel = (lwheel / max_val) * max_speed
-    #     rwheel = (rwheel / max_val) * max_speed
-    packet = "R:", str(rwheel), "L:", lwheel
-    # ser.write(packet.encode())
+    global throttle, turn
+    rwheel = throttle + turn
+    lwheel = throttle - turn
+    # Printing the thrust values
+    # print("R: ", rwheel, " - L: ", lwheel)
 
-    print("R: ", rwheel, " - L: ", lwheel)
-    
+def writeToSer():
+    global throttle, turn
+    while True:
+        print(throttle, turn)
+        time.sleep(0.2)
 
-
+# Define the MyController class
 class MyController(Controller):
-
     def __init__(self, **kwargs):
         Controller.__init__(self, **kwargs)
-
-    def on_R2_release(self):
-        print("R2 released, calling GPT backend")
-        gpt.process_image_and_generate_speech()
-
-    def on_x_press(self):
-        print("X pressed")
-
-    def on_x_release(self):
-        print("X released")
-
+        
     def on_L3_up(self, value):
         global throttle
         throttle = transf(-value)
         printThrust()
-
+        
     def on_L3_down(self, value):
         global throttle
         throttle = transf(-value)
         printThrust()
-    
+        
     def on_L3_right(self, value):
         global turn
         turn = transf(value)
         printThrust()
-
+        
     def on_L3_left(self, value):
         global turn
         turn = transf(value)
         printThrust()
+        
 
-    def on_L2_press(self, value):
-        print("L2 pressed, runnning runDepthCamLoop")
-        depthCam.runDepthCamLoop()
+# Create and start the thread for writeToSer function
+write_thread = threading.Thread(target=writeToSer)
+write_thread.daemon = True  # Daemonize the thread so it automatically exits when the main program ends
+write_thread.start()
+
+# Initialize the controller with your custom controller class
+controller = MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
+
+# Start listening for events
+controller.listen()
