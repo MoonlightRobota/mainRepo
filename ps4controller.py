@@ -1,9 +1,11 @@
 from pyPS4Controller.controller import Controller
 import serial
 import gpt
+import lidar
 
 # ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
-global depthCam
+
+depthCam = lidar.depthCam()
 
 def transf(raw):
     temp = (raw+32767)/65534
