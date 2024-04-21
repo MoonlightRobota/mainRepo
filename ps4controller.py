@@ -35,11 +35,11 @@ def writeToSer():
         if(turn > 0.1):
             s1 = s3 = (throttle) * abs(turn)
             s2 = s4 = throttle
-            print("turning right")
+            print("turning right {s1, s2, s3, s4}")
         elif(turn < -0.1):
-            s1 = s3 = throttle
-            s2 = s4 = throttle * abs(turn)
-            print("turning left")
+            s1 = s3 = throttle * 255
+            s2 = s4 = throttle * abs(turn) * 255
+            print("turning left {s1, s2, s3, s4}")
 
 
         time.sleep(0.2)
