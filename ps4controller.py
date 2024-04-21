@@ -9,6 +9,8 @@ FRAME_COUNT = 60
 throttle = 0
 turn = 0
 
+ser = serial.Serial('/dev/ttyACM0', 9600)
+
 def transf(raw):
     temp = (raw + 32767) / 65534
     return round(temp * 2 - 1, 2)
@@ -25,6 +27,21 @@ def writeToSer():
     global throttle, turn
     while True:
         print(throttle, turn)
+
+        #throttle is the y value
+        #turn is the x value
+
+        #if(turn > 0)
+        if(turn > 0.1):
+            s1 = s3 = (throttle) * abs(turn)
+            s2 = s4 = throttle
+            print("turning right")
+        elif(turn < -0.1):
+            s1 = s3 = throttle
+            s2 = s4 = throttle * abs(turn)
+            print("turning left")
+
+
         time.sleep(0.2)
 
 # Define the MyController class
